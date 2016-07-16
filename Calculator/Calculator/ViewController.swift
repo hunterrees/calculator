@@ -32,6 +32,10 @@ class ViewController: UIViewController {
         if currentlyTyping {
             addToCurrentNumber(digit)
         }
+        else if model.addSign {
+            display.text = "-" + digit
+            model.addSign = false
+        }
         else {
             display.text = digit
         }

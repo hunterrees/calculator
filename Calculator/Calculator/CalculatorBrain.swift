@@ -8,7 +8,9 @@
 
 import Foundation
 
-infix operator ** { associativity left precedence 170 }
+infix operator ** {
+    associativity left precedence 170
+}
 
 func ** (num: Double, power: Double) -> Double{
     return pow(num, power)
@@ -28,9 +30,22 @@ class CalculatorBrain {
         var firstOperand: Double
     }
     
+    private struct PendingUnaryOperationInfo {
+        var unaryFunction: (Double) -> Double
+    }
+    
     var result: Double {
         get {
             return currentTotal
+        }
+    }
+    
+    var addSign: Bool {
+        get {
+            return pendingSignChange
+        }
+        set {
+           pendingSignChange = newValue
         }
     }
     
@@ -38,10 +53,12 @@ class CalculatorBrain {
     
     private var pending: PendingBinaryOperationInfo?
     
+    private var pendingSignChange = false
+    
     private var operations: Dictionary<String, Operation> = [
         "π" : Operation.Constant(M_PI),
         "e" : Operation.Constant(M_E),
-        "C" : Operation.UnaryOperation({$0 * 0}),
+        "C" : Operation.UnaryOperation({$0 * 0.0}),
         "√" : Operation.UnaryOperation(sqrt),
         "sin" : Operation.UnaryOperation(sin),
         "cos" : Operation.UnaryOperation(cos),
@@ -56,23 +73,32 @@ class CalculatorBrain {
     ]
     
     func setOperand(operand: Double) {
-       currentTotal = operand
+        currentTotal = operand
     }
     
     func performOperation(symbol: String) {
         if let operation = operations[symbol] {
             switch operation {
-            case .Constant(let value):
+            case .Constant(let value) :
                 currentTotal = value
-            case .UnaryOperation(let function):
-                if symbol == "C" {
+            case .UnaryOperation(let function) :
+                switch symbol {
+                case "C" :
                     pending = nil
+                case "±" :
+                    if pending != nil {
+                        pendingSignChange = true
+                    }
+                default:
+                    break
                 }
-                currentTotal = function(currentTotal)
-            case .BinaryOperation(let function):
+                if !pendingSignChange {
+                    currentTotal = function(currentTotal)
+                }
+            case .BinaryOperation(let function) :
                 executePendingBinaryOperation()
                 pending = PendingBinaryOperationInfo(binaryFunction: function, firstOperand: currentTotal)
-            case .Equals:
+            case .Equals :
                executePendingBinaryOperation()
             }
         }
@@ -84,11 +110,4 @@ class CalculatorBrain {
             pending = nil
         }
     }
-    
-    
-    private func clear(num: Double) -> Double{
-        pending = nil
-        return num * 0.0
-    }
-    
 }
