@@ -10,15 +10,15 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    @IBOutlet private weak var display: UILabel!
+    @IBOutlet fileprivate weak var display: UILabel!
     
-    private var model = CalculatorBrain()
+    fileprivate var model = CalculatorBrain()
     
-    private var currentlyTyping = false
+    fileprivate var currentlyTyping = false
     
-    private var floatingPoint = false
+    fileprivate var floatingPoint = false
     
-    private var displayValue: Double {
+    fileprivate var displayValue: Double {
         get {
             return Double(display.text!)!
         }
@@ -27,7 +27,7 @@ class ViewController: UIViewController {
         }
     }
     
-    @IBAction private func touchDigit(sender: UIButton) {
+    @IBAction fileprivate func touchDigit(_ sender: UIButton) {
         let digit = sender.currentTitle!
         if currentlyTyping {
             addToCurrentNumber(digit)
@@ -42,7 +42,7 @@ class ViewController: UIViewController {
         currentlyTyping = true
      }
 
-    @IBAction private func performOperation(sender: UIButton) {
+    @IBAction fileprivate func performOperation(_ sender: UIButton) {
         if currentlyTyping {
             model.setOperand(displayValue)
             currentlyTyping = false
@@ -54,7 +54,7 @@ class ViewController: UIViewController {
         displayValue = model.result
     }
     
-    private func addToCurrentNumber(digit: String) {
+    fileprivate func addToCurrentNumber(_ digit: String) {
         if digit == "." {
             if !floatingPoint {
                 floatingPoint = true

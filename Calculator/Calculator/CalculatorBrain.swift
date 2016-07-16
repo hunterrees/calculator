@@ -18,37 +18,37 @@ func ** (num: Double, power: Double) -> Double{
 
 class CalculatorBrain {
     
-    private enum Operation {
-        case Constant(Double)
-        case UnaryOperation((Double) -> Double)
-        case BinaryOperation((Double, Double) -> Double)
-        case Equals
+    fileprivate enum Operation {
+        case constant(Double)
+        case unaryOperation((Double) -> Double)
+        case binaryOperation((Double, Double) -> Double)
+        case equals
     }
     
-    private struct PendingBinaryOperationInfo {
+    fileprivate struct PendingBinaryOperationInfo {
         var binaryFunction: (Double, Double) -> Double
         var firstOperand: Double
     }
     
-    private struct PendingUnaryOperationInfo {
+    fileprivate struct PendingUnaryOperationInfo {
         var unaryFunction: (Double) -> Double
     }
     
-    private var operations = [
-        "π" : Operation.Constant(M_PI),
-        "e" : Operation.Constant(M_E),
-        "C" : Operation.UnaryOperation({(op1: Double) in return 0.0}),
-        "√" : Operation.UnaryOperation(sqrt),
-        "sin" : Operation.UnaryOperation(sin),
-        "cos" : Operation.UnaryOperation(cos),
-        "tan" : Operation.UnaryOperation(tan),
-        "xª" : Operation.BinaryOperation(**),
-        "±" : Operation.UnaryOperation({$0 * -1}),
-        "x" : Operation.BinaryOperation({$0 * $1}),
-        "+" : Operation.BinaryOperation({$0 + $1}),
-        "-" : Operation.BinaryOperation({$0 - $1}),
-        "÷" : Operation.BinaryOperation({$0 / $1}),
-        "=" : Operation.Equals
+    fileprivate var operations = [
+        "π" : Operation.constant(M_PI),
+        "e" : Operation.constant(M_E),
+        "C" : Operation.unaryOperation({(op1: Double) in return 0.0}),
+        "√" : Operation.unaryOperation(sqrt),
+        "sin" : Operation.unaryOperation(sin),
+        "cos" : Operation.unaryOperation(cos),
+        "tan" : Operation.unaryOperation(tan),
+        "xª" : Operation.binaryOperation(**),
+        "±" : Operation.unaryOperation({$0 * -1}),
+        "x" : Operation.binaryOperation({$0 * $1}),
+        "+" : Operation.binaryOperation({$0 + $1}),
+        "-" : Operation.binaryOperation({$0 - $1}),
+        "÷" : Operation.binaryOperation({$0 / $1}),
+        "=" : Operation.equals
     ]
     
     var result: Double {
@@ -66,22 +66,22 @@ class CalculatorBrain {
         }
     }
     
-    private var currentTotal = 0.0
+    fileprivate var currentTotal = 0.0
     
-    private var pendingOperation: PendingBinaryOperationInfo?
+    fileprivate var pendingOperation: PendingBinaryOperationInfo?
     
-    private var pendingSignChange = false
+    fileprivate var pendingSignChange = false
     
-    func setOperand(operand: Double) {
+    func setOperand(_ operand: Double) {
         currentTotal = operand
     }
     
-    func performOperation(symbol: String) {
+    func performOperation(_ symbol: String) {
         if let operation = operations[symbol] {
             switch operation {
-            case .Constant(let value) :
+            case .constant(let value) :
                 currentTotal = value
-            case .UnaryOperation(let function) :
+            case .unaryOperation(let function) :
                 switch symbol {
                 case "C" :
                     pendingOperation = nil
@@ -95,16 +95,16 @@ class CalculatorBrain {
                 if !pendingSignChange {
                     currentTotal = function(currentTotal)
                 }
-            case .BinaryOperation(let function) :
+            case .binaryOperation(let function) :
                 executePendingBinaryOperation()
                 pendingOperation = PendingBinaryOperationInfo(binaryFunction: function, firstOperand: currentTotal)
-            case .Equals :
+            case .equals :
                 executePendingBinaryOperation()
             }
         }
     }
     
-    private func executePendingBinaryOperation() {
+    fileprivate func executePendingBinaryOperation() {
         if pendingOperation != nil {
             currentTotal = pendingOperation!.binaryFunction(pendingOperation!.firstOperand, currentTotal)
             pendingOperation = nil
