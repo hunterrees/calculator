@@ -37,7 +37,7 @@ class CalculatorBrain {
     private var operations = [
         "π" : Operation.Constant(M_PI),
         "e" : Operation.Constant(M_E),
-        "C" : Operation.UnaryOperation({$0 * 0.0}),
+        "C" : Operation.UnaryOperation({(op1: Double) in return 0.0}),
         "√" : Operation.UnaryOperation(sqrt),
         "sin" : Operation.UnaryOperation(sin),
         "cos" : Operation.UnaryOperation(cos),
