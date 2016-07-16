@@ -8,6 +8,12 @@
 
 import Foundation
 
+infix operator ** { associativity left precedence 170 }
+
+func ** (num: Double, power: Double) -> Double{
+    return pow(num, power)
+}
+
 class CalculatorBrain {
     
     private enum Operation {
@@ -37,7 +43,11 @@ class CalculatorBrain {
         "e" : Operation.Constant(M_E),
         "C" : Operation.UnaryOperation({$0 * 0}),
         "√" : Operation.UnaryOperation(sqrt),
+        "sin" : Operation.UnaryOperation(sin),
         "cos" : Operation.UnaryOperation(cos),
+        "tan" : Operation.UnaryOperation(tan),
+        "xª" : Operation.BinaryOperation(**),
+        "±" : Operation.UnaryOperation({$0 * -1}),
         "x" : Operation.BinaryOperation({$0 * $1}),
         "+" : Operation.BinaryOperation({$0 + $1}),
         "-" : Operation.BinaryOperation({$0 - $1}),
@@ -55,6 +65,9 @@ class CalculatorBrain {
             case .Constant(let value):
                 currentTotal = value
             case .UnaryOperation(let function):
+                if symbol == "C" {
+                    pending = nil
+                }
                 currentTotal = function(currentTotal)
             case .BinaryOperation(let function):
                 executePendingBinaryOperation()
@@ -70,6 +83,12 @@ class CalculatorBrain {
             currentTotal = pending!.binaryFunction(pending!.firstOperand, currentTotal)
             pending = nil
         }
+    }
+    
+    
+    private func clear(num: Double) -> Double{
+        pending = nil
+        return num * 0.0
     }
     
 }
