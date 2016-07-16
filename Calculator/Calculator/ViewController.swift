@@ -16,6 +16,8 @@ class ViewController: UIViewController {
     
     private var currentlyTyping = false
     
+    private var floatingPoint = false
+    
     private var displayValue: Double {
         get {
             return Double(display.text!)!
@@ -28,8 +30,7 @@ class ViewController: UIViewController {
     @IBAction private func touchDigit(sender: UIButton) {
         let digit = sender.currentTitle!
         if currentlyTyping {
-            let currentText = display.text!
-            display.text = currentText + digit
+            addToCurrentNumber(digit)
         }
         else {
             display.text = digit
@@ -41,11 +42,25 @@ class ViewController: UIViewController {
         if currentlyTyping {
             model.setOperand(displayValue)
             currentlyTyping = false
+            floatingPoint = false
         }
         if let mathSymbol = sender.currentTitle {
             model.performOperation(mathSymbol)
         }
         displayValue = model.result
+    }
+    
+    private func addToCurrentNumber(digit: String) {
+        if digit == "." {
+            if !floatingPoint {
+                floatingPoint = true
+            }
+            else {
+                return
+            }
+        }
+        let currentText = display.text!
+        display.text = currentText + digit
     }
 }
 
