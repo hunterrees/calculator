@@ -34,6 +34,23 @@ class CalculatorBrain {
         var unaryFunction: (Double) -> Double
     }
     
+    private var operations = [
+        "π" : Operation.Constant(M_PI),
+        "e" : Operation.Constant(M_E),
+        "C" : Operation.UnaryOperation({$0 * 0.0}),
+        "√" : Operation.UnaryOperation(sqrt),
+        "sin" : Operation.UnaryOperation(sin),
+        "cos" : Operation.UnaryOperation(cos),
+        "tan" : Operation.UnaryOperation(tan),
+        "xª" : Operation.BinaryOperation(**),
+        "±" : Operation.UnaryOperation({$0 * -1}),
+        "x" : Operation.BinaryOperation({$0 * $1}),
+        "+" : Operation.BinaryOperation({$0 + $1}),
+        "-" : Operation.BinaryOperation({$0 - $1}),
+        "÷" : Operation.BinaryOperation({$0 / $1}),
+        "=" : Operation.Equals
+    ]
+    
     var result: Double {
         get {
             return currentTotal
@@ -51,26 +68,9 @@ class CalculatorBrain {
     
     private var currentTotal = 0.0
     
-    private var pending: PendingBinaryOperationInfo?
+    private var pendingOperation: PendingBinaryOperationInfo?
     
     private var pendingSignChange = false
-    
-    private var operations: Dictionary<String, Operation> = [
-        "π" : Operation.Constant(M_PI),
-        "e" : Operation.Constant(M_E),
-        "C" : Operation.UnaryOperation({$0 * 0.0}),
-        "√" : Operation.UnaryOperation(sqrt),
-        "sin" : Operation.UnaryOperation(sin),
-        "cos" : Operation.UnaryOperation(cos),
-        "tan" : Operation.UnaryOperation(tan),
-        "xª" : Operation.BinaryOperation(**),
-        "±" : Operation.UnaryOperation({$0 * -1}),
-        "x" : Operation.BinaryOperation({$0 * $1}),
-        "+" : Operation.BinaryOperation({$0 + $1}),
-        "-" : Operation.BinaryOperation({$0 - $1}),
-        "÷" : Operation.BinaryOperation({$0 / $1}),
-        "=" : Operation.Equals
-    ]
     
     func setOperand(operand: Double) {
         currentTotal = operand
@@ -84,9 +84,9 @@ class CalculatorBrain {
             case .UnaryOperation(let function) :
                 switch symbol {
                 case "C" :
-                    pending = nil
+                    pendingOperation = nil
                 case "±" :
-                    if pending != nil {
+                    if pendingOperation != nil {
                         pendingSignChange = true
                     }
                 default:
@@ -97,17 +97,17 @@ class CalculatorBrain {
                 }
             case .BinaryOperation(let function) :
                 executePendingBinaryOperation()
-                pending = PendingBinaryOperationInfo(binaryFunction: function, firstOperand: currentTotal)
+                pendingOperation = PendingBinaryOperationInfo(binaryFunction: function, firstOperand: currentTotal)
             case .Equals :
-               executePendingBinaryOperation()
+                executePendingBinaryOperation()
             }
         }
     }
     
     private func executePendingBinaryOperation() {
-        if pending != nil {
-            currentTotal = pending!.binaryFunction(pending!.firstOperand, currentTotal)
-            pending = nil
+        if pendingOperation != nil {
+            currentTotal = pendingOperation!.binaryFunction(pendingOperation!.firstOperand, currentTotal)
+            pendingOperation = nil
         }
     }
 }
